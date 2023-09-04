@@ -10,7 +10,7 @@ async function startConsumer() {
 
   console.log("[✅] Connection over channel established")
 
-  const q = await channel.queue('email.notifications')
+  const q = await channel.queue('exam')
 
   let counter = 0;
 

@@ -13,25 +13,26 @@ async function startPublisher() {
     console.log("[✅] Connection over channel established")
 
     //Declare the exchange and queue, and create a binding between them
-    await channel.exchangeDeclare('emails', 'direct')
-    const q = await channel.queue('email.notifications')
-    await channel.queueBind('email.notifications', 'emails', 'notification')
+    await channel.exchangeDeclare('exchange.26a7a847-f8df-4d43-b076-1ffb2e55556d', 'direct')
+    const q = await channel.queue('exam')
+    await channel.queueBind('exam', 'exchange.26a7a847-f8df-4d43-b076-1ffb2e55556d', '26a7a847-f8df-4d43-b076-1ffb2e55556d')
 
     //Publish a message to the exchange
-    async function sendToQueue(routingKey, email, name, body) {
-      const message = { email, name, body }
+    async function sendToQueue(routingKey, payload) {
+      const message = { payload }
       const jsonMessage = JSON.stringify(message);
 
         //amqp-client function expects: publish(exchange, routingKey, message, options)
-        await q.publish('emails', { routingKey }, jsonMessage)
+        await channel.basicPublish('exchange.26a7a847-f8df-4d43-b076-1ffb2e55556d', '26a7a847-f8df-4d43-b076-1ffb2e55556d', 'Hi CloudAMQP, this was fun!',  { deliveryMode: 2 })
         console.log("[📥] Message sent to queue", message)
     }
 
     //Send some messages to the queue
-    sendToQueue("notification", "example@example.com", "John Doe", "Your order has been received");
-    sendToQueue("notification", "example@example.com", "Jane Doe", "The product is back in stock");
-    sendToQueue("resetpassword", "example@example.com", "Willem Dafoe", "Here is your new password");
+    sendToQueue("26a7a847-f8df-4d43-b076-1ffb2e55556d", "Hi CloudAMQP, this was fun!");
 
+    await channel.queueUnbind('exam', 'exchange.26a7a847-f8df-4d43-b076-1ffb2e55556d', '26a7a847-f8df-4d43-b076-1ffb2e55556d')
+    //await channel.exchangeDelete('exchange.26a7a847-f8df-4d43-b076-1ffb2e55556d', false)
+        
 
    setTimeout(() => {
       //Close the connection
